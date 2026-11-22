@@ -1,12 +1,21 @@
+import base64
+from pathlib import Path
 from urllib.parse import quote
 
 import streamlit as st
 
 from sorteo import leer_lista, nombres_tool, sortear, texto_para_whatsapp
 
-st.set_page_config(page_title="Sorteo de equipos", page_icon="⚽", layout="centered")
+LOGO = Path(__file__).parent / "logo.png"
 
-st.title("⚽ Sorteo de equipos")
+st.set_page_config(page_title="Mantraneta FC", page_icon=str(LOGO), layout="centered")
+
+logo_b64 = base64.b64encode(LOGO.read_bytes()).decode()
+st.markdown(
+    f"<div style='text-align:center'><img src='data:image/png;base64,{logo_b64}' width='170'></div>",
+    unsafe_allow_html=True,
+)
+st.markdown("<h1 style='text-align:center'>Mantraneta FC</h1>", unsafe_allow_html=True)
 st.caption("Copiá la lista del grupo de WhatsApp, pegala acá abajo y tocá **Sortear**.")
 
 texto = st.text_area(
