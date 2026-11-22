@@ -28,15 +28,15 @@ header[data-testid="stHeader"], #MainMenu, footer {display: none !important;}
 /* Tarjetas de equipos: 2 por fila incluso en el celular */
 .equipos {display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
           gap: 10px; margin: .5rem 0 .8rem;}
-.equipo {border-radius: 14px; overflow: hidden; background: #f6f2fc;
-         border: 1px solid #e3d8f5;}
-.equipo .titulo {background: linear-gradient(135deg, #2a1660, #6b2fa3); color: #fff;
+.equipo {border-radius: 14px; overflow: hidden; background: #1c1533;
+         border: 1px solid #3a2a63;}
+.equipo .titulo {background: linear-gradient(135deg, #3b1f7a, #8a3fc7); color: #fff;
                  padding: 8px 10px; font-weight: 700; font-size: .98rem; line-height: 1.2;}
 .equipo .titulo small {display: block; font-weight: 400; opacity: .8; font-size: .75rem;}
 .equipo ul {list-style: none; margin: 0; padding: 6px 10px 10px;}
-.equipo li {padding: 5px 0; border-bottom: 1px solid #e9e1f6; font-size: .98rem; margin: 0;}
+.equipo li {padding: 5px 0; border-bottom: 1px solid #2e2350; font-size: .98rem; margin: 0;}
 .equipo li:last-child {border-bottom: none;}
-.suplentes {font-size: .92rem; color: #555; margin-bottom: .6rem;}
+.suplentes {font-size: .92rem; color: #b9aed3; margin-bottom: .6rem;}
 
 /* Botones más altos, cómodos para el dedo */
 .stButton button, .stLinkButton a {min-height: 3rem; font-size: 1.05rem;}
