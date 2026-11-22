@@ -38,6 +38,27 @@ header[data-testid="stHeader"], #MainMenu, footer {display: none !important;}
 .equipo li:last-child {border-bottom: none;}
 .suplentes {font-size: .92rem; color: #b9aed3; margin-bottom: .6rem;}
 
+/* ---------- Animación del sorteo ---------- */
+@keyframes caer {
+  0%   {opacity: 0; transform: translateY(-46px) scale(.75) rotate(-6deg);}
+  60%  {opacity: 1; transform: translateY(5px) scale(1.06) rotate(1deg);}
+  100% {opacity: 1; transform: none;}
+}
+@keyframes destello {
+  0%   {background: rgba(190, 120, 255, .45); box-shadow: 0 0 14px rgba(190, 120, 255, .6);}
+  100% {background: transparent; box-shadow: none;}
+}
+@keyframes aparecer {from {opacity: 0; transform: scale(.94);} to {opacity: 1; transform: none;}}
+.animar .equipo {animation: aparecer .35s ease both;}
+.animar li {opacity: 0; border-radius: 6px;
+            animation: caer .55s cubic-bezier(.2, .8, .3, 1.2) forwards,
+                       destello .9s ease-out forwards;
+            animation-delay: var(--d), var(--d);}
+.animar .suplentes {opacity: 0; animation: aparecer .4s ease forwards; animation-delay: var(--d);}
+@media (prefers-reduced-motion: reduce) {
+  .animar li, .animar .equipo, .animar .suplentes {animation: none !important; opacity: 1 !important;}
+}
+
 /* Botones más altos, cómodos para el dedo */
 .stButton button, .stLinkButton a {min-height: 3rem; font-size: 1.05rem;}
 </style>
@@ -88,6 +109,7 @@ puede_sortear = len(jugadores) >= n_equipos
 if st.button("🎲 Sortear", type="primary", use_container_width=True, disabled=not puede_sortear):
     equipos, suplentes = sortear(jugadores, int(n_equipos), int(cupo), set(arqueros), respetar_orden)
     st.session_state["resultado"] = (nombres_tool(int(n_equipos)), equipos, suplentes, set(arqueros))
+    st.session_state["animar"] = True  # sólo se anima justo después de sortear
 
 if texto.strip() and not puede_sortear:
     st.info(f"Necesito al menos {int(n_equipos)} nombres para sortear.")
@@ -96,17 +118,31 @@ if texto.strip() and not puede_sortear:
 if "resultado" in st.session_state:
     nombres, equipos, suplentes, arqs = st.session_state["resultado"]
 
+    # Los nombres caen alternando equipos, como repartiendo cartas.
+    # El paso se achica si hay mucha gente, para que todo dure ~4 segundos como máximo.
+    animar = st.session_state.pop("animar", False)
+    n_eq = len(equipos)
+    total = sum(len(e) for e in equipos)
+    paso = min(0.38, 4.0 / max(total, 1))
+    inicio = 0.3
+
     tarjetas = []
-    for nombre, equipo in zip(nombres, equipos):
-        items = "".join(f"<li>{escape(j)}{' 🧤' if j in arqs else ''}</li>" for j in equipo)
+    for k, (nombre, equipo) in enumerate(zip(nombres, equipos)):
+        items = "".join(
+            f"<li style='--d:{inicio + (i * n_eq + k) * paso:.2f}s'>"
+            f"{escape(j)}{' 🧤' if j in arqs else ''}</li>"
+            for i, j in enumerate(equipo)
+        )
         tarjetas.append(
             f"<div class='equipo'><div class='titulo'>{escape(nombre)}"
             f"<small>{len(equipo)} jugadores</small></div><ul>{items}</ul></div>"
         )
+    fin = inicio + total * paso + 0.3
     html = f"<div class='equipos'>{''.join(tarjetas)}</div>"
     if suplentes:
-        html += f"<div class='suplentes'><b>Suplentes:</b> {escape(', '.join(suplentes))}</div>"
-    st.markdown(html, unsafe_allow_html=True)
+        html += (f"<div class='suplentes' style='--d:{fin:.2f}s'><b>Suplentes:</b> "
+                 f"{escape(', '.join(suplentes))}</div>")
+    st.markdown(f"<div class='{'animar' if animar else ''}'>{html}</div>", unsafe_allow_html=True)
 
     mensaje = texto_para_whatsapp(nombres, equipos, suplentes, arqs)
     st.link_button("📲 Mandar al grupo por WhatsApp", f"https://wa.me/?text={quote(mensaje)}",
